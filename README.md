@@ -1,4 +1,4 @@
-# <img src="https://slackmojis.com/emojis/149-sonic/download" width="50"/> IoT Data Ingestion Pipeline
+# <img src="https://slackmojis.com/emojis/14805-kirby_pink/download" width="50"/> IoT Data Ingestion Pipeline
 
 > Real-time sensor data processing using MQTT protocol
 
