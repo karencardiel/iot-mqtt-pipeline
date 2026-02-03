@@ -1,10 +1,14 @@
+import os
 import ssl
 import paho.mqtt.client as mqtt
 import psycopg2
+from dotenv import load_dotenv 
+
+load_dotenv()
 
 # Configuración MQTT
 BROKER = os.getenv("MQTT_BROKER")
-PORT = int(os.getenv("MQTT_PORT"))
+PORT = int(os.getenv("MQTT_PORT", 8883))
 USERNAME = os.getenv("MQTT_USER")
 PASSWORD = os.getenv("MQTT_PASS")
 TOPIC_INT = "sensores/enteros"

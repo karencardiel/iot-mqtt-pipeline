@@ -7,27 +7,79 @@ from streamlit_autorefresh import st_autorefresh
 # Page Configuration
 st.set_page_config(page_title="IoT Real-Time Pipeline", layout="wide")
 
-# CSS Style for the "Dark/Pro" look (Blue accents)
 st.markdown("""
     <style>
-    /* Import Poppins font */
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-
-    /* Apply Poppins to everything */
-    html, body, [class*="css"]  {
+    /* Importamos ambas fuentes */
+    @import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@700;900&family=Poppins:wght@300;400;600&display=swap');
+    /* FUENTE GLOBAL: Forzamos Poppins en todos los elementos de Streamlit */
+    html, body, [class*="css"], .stMarkdown, .stText, .stMetric, .stWidget, label, p {
         font-family: 'Poppins', sans-serif !important;
     }
+    
+    /* TÍTULO CON PLAYFAIR (Serif) Y AZUL */
+    .main-title {
+        font-family: 'Albert Sans', serif !important;
+        color: #00d4ff; 
+        font-weight: 900;
+        font-size: 60px;
+        margin-top: 10px;
+        text-align: center; 
+    }
 
-    /* Forces dark background for the main container */
-    .stApp { background-color: #0e1117; }
+    /* NÚMEROS DE LAS MÉTRICAS: Forzamos Poppins y color azul */
+    [data-testid="stMetricValue"] div {
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 10 !important;
+        color: #00d4ff !important;
+    }
+
+    /* ETIQUETAS DE LAS MÉTRICAS */
+    [data-testid="stMetricLabel"] p {
+        font-family: 'Poppins', sans-serif !important;
+        font-size: 10 !important;
+        font-weight: 10 !important;
+        color: #8b949e !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* TÍTULOS DE LAS GRÁFICAS (###) */
+    h3 {
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 20px !important;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
     
-    /* Global text color */
-    h1, h2, h3, p, span, label { color: #ffffff !important; }
-    
-    /* Metric styling */
-    div[data-testid="stMetricValue"] { 
-        font-size: 40px !important; 
-        color: #00d4ff !important; 
+    /* CAMBIAR LABELS DE LOS EJES (DENTRO DE LA GRÁFICA) */
+    .stVegaLiteChart text, .vega-bind label {
+        font-family: 'Poppins', sans-serif !important;
+        fill: #8b949e !important; /* Color de la letra en la gráfica */
+        font-size: 12px !important;
+    }
+
+    /* Etiquetas de los inputs (Records to show) */
+    label[data-testid="stWidgetLabel"] {
+        font-family: 'Poppins', sans-serif !important;
+        color: #00d4ff !important; /* Un toque azul para que resalte */
+        font-weight: 600 !important;
+    }
+
+    /* Estilo para el contenedor de la métrica */
+    [data-testid="stMetric"] {
+        background-color: #161b22; /* Color de fondo oscuro */
+        border: 1px solid #30363d;   /* Borde gris sutil */
+        padding: 15px 20px;          /* Espacio interno */
+        border-radius: 10px;         /* Orillas redondeadas */
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2); /* Sombra para dar profundidad */
+    }
+
+    /* Color del título de la métrica */
+    [data-testid="stMetricLabel"] p {
+        color: #8b949e !important;
+        font-weight: 600;
     }
     
     /* Input box styling */
@@ -50,13 +102,13 @@ DB_PARAMS = {
 # Auto-refresh every 2 seconds
 st_autorefresh(interval=2000, key="datarefresh")
 
-st.title("IoT MONITORING SYSTEM")
+st.markdown('<h1 class="main-title">IoT MONITORING SYSTEM</h1>', unsafe_allow_html=True)
 
-# --- CONTROL SCTION (Side-by-side Top Header) ---
+# --- CONTROL SCTION 
 header_col1, header_col2 = st.columns([3, 1])
 
 with header_col2:
-    # Record selector located at the top right (no sidebar)
+
     limit = st.number_input("Records to show:", min_value=5, max_value=100, value=20)
 
 st.divider()
@@ -77,25 +129,37 @@ df_float = get_data("lake_raw_data_float", limit)
 
 # --- METRICS SECTION ---
 m1, m2 = st.columns(2)
+
 with m1:
-    val = df_int['value'].iloc[-1] if not df_int.empty else 0
-    st.metric("Latest Integer Value", f"{val} units")
+    val_i = df_int['value'].iloc[-1] if not df_int.empty else 0
+    st.metric(label="LATEST INTEGER", value=f"{val_i} units")
+
 with m2:
-    val = df_float['value'].iloc[-1] if not df_float.empty else 0
-    st.metric("Latest Float Value", f"{val:.2f} units")
+    val_f = df_float['value'].iloc[-1] if not df_float.empty else 0
+    st.metric(label="LATEST FLOAT", value=f"{val_f:.2f} units")
 
 # --- CHARTS SECTION ---
 g1, g2 = st.columns(2)
 with g1:
     st.write("### INTEGER STREAM")
     if not df_int.empty:
-        st.area_chart(df_int.set_index("ts")["value"], use_container_width=True)
+        st.area_chart(
+            df_int.set_index("ts")["value"], 
+            use_container_width=True,
+            x_label="Time",
+            y_label="Sensor value"
+        )
 
 with g2:
     st.write("### FLOATING-POINT STREAM")
-    if not df_float.empty:
-        st.line_chart(df_float.set_index("ts")["value"], use_container_width=True, color="#00d4ff")
-
+    if not df_float.empty:      
+        st.line_chart(
+            df_float.set_index("ts")["value"], 
+            use_container_width=True, 
+            color="#00d4ff",
+            x_label="Timestamp",
+            y_label="Precision units"
+        )
 # --- DATA TABLE ---
 with st.expander("Raw data"):
     st.dataframe(df_float, use_container_width=True)

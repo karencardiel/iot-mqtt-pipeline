@@ -2,10 +2,14 @@ import ssl
 import paho.mqtt.client as mqtt
 import random
 import time
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # --- MISMAS CREDENCIALES QUE EL SUSCRIPTOR ---
 BROKER = os.getenv("MQTT_BROKER")
-PORT = int(os.getenv("MQTT_PORT"))
+PORT = int(os.getenv("MQTT_PORT", 8883))
 USERNAME = os.getenv("MQTT_USER")
 PASSWORD = os.getenv("MQTT_PASS")
 # Topicos
