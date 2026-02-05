@@ -95,6 +95,7 @@ CREATE TABLE lake_raw_data_float (
 The Streamlit dashboard provides real-time visualization with:
 
 **Components:**
+
 ▸ **KPI Metrics** - Most recent sensor values  
 ▸ **Time-Series Charts** - Area chart for integers, line chart for floats  
 ▸ **Raw Data Table** - Last N records (configurable 5-100)  
